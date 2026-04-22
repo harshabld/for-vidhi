@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{
+  background:#000;
+  color:rgba(255,255,255,0.92);
+  font-family:'Cormorant Garamond',serif;
+  min-height:100vh;min-height:100dvh;
+  overflow:hidden;
+  width:100%;
+  -webkit-text-size-adjust:100%;
+}
+
+#stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--d,3s) ease-in-out infinite alternate;}
+@keyframes twinkle{0%{opacity:var(--lo,0.08);}100%{opacity:var(--hi,0.7);}}
+
+#flower-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;}
+.petal{position:absolute;top:-80px;font-size:var(--sz,22px);animation:fall var(--fd,3s) ease-in forwards;}
+@keyframes fall{
+  0%{transform:translateY(0) rotate(0deg) translateX(0);opacity:1;}
+  45%{opacity:1;transform:translateY(48vh) rotate(var(--rot1,180deg)) translateX(var(--sway,30px));}
+  100%{transform:translateY(115vh) rotate(var(--rot,400deg)) translateX(0);opacity:0;}
+}
+
+.screen{
+  position:fixed;top:0;left:0;width:100%;
+  height:100vh;height:100dvh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;transition:opacity 1s ease;
+  padding:clamp(1rem,4vw,2.5rem);
+  text-align:center;
+}
+.screen.hidden{opacity:0;pointer-events:none;}
+
+/* SCREEN 1 */
+#s1 .heading{
+  font-size:clamp(28px,5.5vw,54px);font-weight:300;
+  letter-spacing:0.1em;line-height:1.65;margin-bottom:8px;
+}
+#s1 .sub{
+  font-size:clamp(12px,1.9vw,16px);color:rgba(255,255,255,0.3);
+  font-style:italic;letter-spacing:0.12em;
+  margin-bottom:clamp(38px,7vh,64px);
+}
+.inp-wrap input{
+  background:transparent;border:none;
+  border-bottom:1px solid rgba(255,255,255,0.18);
+  color:white;font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,4vw,34px);font-weight:300;
+  letter-spacing:0.2em;text-align:center;
+  width:clamp(220px,60vw,320px);
+  padding:10px 4px;outline:none;
+  caret-color:rgba(255,255,255,0.55);
+  transition:border-color 0.5s;display:block;
+}
+.inp-wrap input:focus{border-bottom-color:rgba(255,255,255,0.5);}
+.shake{animation:shake 0.5s ease;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-10px);}40%{transform:translateX(10px);}
+  60%{transform:translateX(-7px);}80%{transform:translateX(7px);}
+}
+.wrong-msg{
+  margin-top:clamp(18px,3vh,28px);font-size:clamp(12px,1.8vw,14px);
+  color:rgba(255,255,255,0.3);font-style:italic;
+  letter-spacing:0.06em;min-height:20px;
+}
+
+/* SCREEN 2 */
+#s2 .reveal-text{
+  font-size:clamp(15px,2.8vw,26px);font-weight:300;
+  line-height:2.1;letter-spacing:0.03em;
+  max-width:clamp(300px,80vw,600px);
+  min-height:clamp(100px,18vh,150px);
+  margin-bottom:clamp(32px,6vh,56px);
+  color:rgba(255,255,255,0.88);
+}
+
+/* SCREEN 3 */
+#s3{
+  position:fixed;top:0;left:0;width:100%;
+  height:100vh;height:100dvh;
+  overflow-y:auto;display:block;z-index:10;
+  transition:opacity 1s ease;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+#s3.hidden{opacity:0;pointer-events:none;}
+.story-inner{
+  max-width:clamp(320px,88vw,700px);
+  margin:0 auto;
+  padding:clamp(10vh,14vh,18vh) clamp(1rem,4vw,2.5rem) clamp(18vh,24vh,28vh);
+}
+.chapter{
+  opacity:0;transform:translateY(45px);
+  transition:opacity 1.3s ease,transform 1.3s ease;
+  margin-bottom:clamp(10vh,15vh,18vh);
+}
+.chapter.visible{opacity:1;transform:translateY(0);}
+.ch-label{
+  font-size:clamp(9px,1.2vw,11px);letter-spacing:0.3em;
+  color:rgba(255,255,255,0.18);text-transform:uppercase;
+  margin-bottom:clamp(18px,3vh,28px);display:block;
+}
+.chapter h2{
+  font-size:clamp(22px,4.5vw,44px);font-weight:300;
+  letter-spacing:0.05em;margin-bottom:clamp(20px,3.5vh,32px);line-height:1.3;
+}
+.chapter p{
+  font-size:clamp(14px,2vw,19px);font-weight:400;
+  line-height:2.1;color:rgba(255,255,255,0.76);
+  font-family:'Crimson Text',serif;margin-bottom:16px;
+}
+.chapter p em{font-style:italic;color:rgba(255,255,255,0.5);}
+.chapter p strong{font-weight:400;color:rgba(255,255,255,0.96);}
+
+.ornament{display:flex;gap:8px;align-items:center;justify-content:center;margin:28px 0;}
+.ornament span{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-block;}
+.ornament span:nth-child(2){width:6px;height:6px;background:rgba(255,255,255,0.35);}
+
+.illus{display:flex;align-items:center;justify-content:center;margin:clamp(28px,5vh,50px) auto;flex-wrap:wrap;gap:16px;}
+
+/* Envelope */
+.envelope{
+  width:clamp(60px,12vw,86px);height:clamp(42px,8.5vw,62px);
+  border:1.5px solid rgba(255,255,255,0.22);border-radius:4px;
+  position:relative;display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:10px;
+  animation:floatup 4s ease-in-out infinite;overflow:hidden;
+}
+.envelope::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:55%;
+  background:linear-gradient(135deg,transparent 49%,rgba(255,255,255,0.06) 50%),
+             linear-gradient(225deg,transparent 49%,rgba(255,255,255,0.08) 50%);
+}
+.envelope-inner{font-size:clamp(14px,2.5vw,19px);line-height:1;}
+@keyframes floatup{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+
+/* Chat bubble */
+.chat-bubble{
+  border:1px solid rgba(255,255,255,0.13);
+  border-radius:clamp(14px,2.5vw,20px);
+  border-bottom-left-radius:4px;
+  padding:clamp(10px,2vw,15px) clamp(14px,3vw,22px);
+  font-size:clamp(12px,1.8vw,15px);
+  color:rgba(255,255,255,0.44);
+  font-family:'Crimson Text',serif;font-style:italic;
+  max-width:clamp(200px,65vw,300px);
+  text-align:left;line-height:1.8;display:inline-block;
+}
+.chat-label{font-size:clamp(9px,1.2vw,11px);color:rgba(255,255,255,0.22);letter-spacing:0.12em;margin-bottom:5px;font-style:normal;}
+
+/* Phone */
+.phone-illus{
+  width:clamp(52px,9vw,74px);height:clamp(92px,17vw,132px);
+  border:1.5px solid rgba(255,255,255,0.26);
+  border-radius:clamp(10px,2vw,15px);
+  position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  animation:phoneGlow 3s ease-in-out infinite alternate;
+}
+@keyframes phoneGlow{
+  from{box-shadow:0 0 8px rgba(255,255,255,0.04);}
+  to{box-shadow:0 0 28px rgba(255,255,255,0.18),0 0 60px rgba(255,255,255,0.05);}
+}
+.phone-notch{width:clamp(20px,3.5vw,28px);height:4px;background:rgba(255,255,255,0.15);border-radius:99px;position:absolute;top:8px;}
+.phone-text{font-size:clamp(6px,1.1vw,8px);color:rgba(255,255,255,0.34);text-align:center;line-height:2;padding:0 5px;margin-top:6px;font-family:'Crimson Text',serif;font-style:italic;}
+
+/* Clock */
+.clock-illus{
+  width:clamp(70px,12vw,90px);height:clamp(70px,12vw,90px);
+  border:1.5px solid rgba(255,255,255,0.17);border-radius:50%;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.clock-center{width:5px;height:5px;background:rgba(255,255,255,0.48);border-radius:50%;position:absolute;z-index:2;}
+.clock-hand{position:absolute;background:rgba(255,255,255,0.48);border-radius:2px;transform-origin:bottom center;bottom:50%;left:50%;}
+
+/* Star scatter */
+.star-scatter{display:flex;gap:clamp(8px,2vw,18px);align-items:center;justify-content:center;flex-wrap:wrap;padding:8px 0;}
+.star-scatter span{color:rgba(255,255,255,0.24);font-size:var(--s,14px);animation:twinkle var(--d,3s) ease-in-out infinite alternate;}
+
+/* Pull quote */
+.pull-quote{
+  border-left:1px solid rgba(255,255,255,0.14);
+  padding:clamp(12px,2.5vh,22px) clamp(14px,3vw,26px);
+  margin:clamp(18px,4vh,34px) 0;text-align:left;
+}
+.pull-quote p{
+  font-style:italic;color:rgba(255,255,255,0.55);
+  font-size:clamp(14px,1.9vw,18px);line-height:1.95;
+  font-family:'Crimson Text',serif;
+}
+
+/* SCREEN 4 */
+#s4{
+  position:fixed;top:0;left:0;width:100%;
+  height:100vh;height:100dvh;
+  overflow-y:auto;display:block;z-index:10;
+  transition:opacity 1s ease;
+  -webkit-overflow-scrolling:touch;
+}
+#s4.hidden{opacity:0;pointer-events:none;}
+.letter-inner{
+  max-width:clamp(300px,82vw,560px);
+  margin:0 auto;
+  padding:clamp(12vh,18vh,22vh) clamp(1rem,4vw,2rem) clamp(14vh,20vh,24vh);
+  text-align:center;
+}
+.letter-name{
+  font-size:clamp(40px,8vw,74px);font-weight:300;
+  letter-spacing:0.22em;margin-bottom:clamp(36px,6vh,54px);
+  animation:glow 3.5s ease-in-out infinite alternate;
+}
+@keyframes glow{
+  from{text-shadow:0 0 18px rgba(255,255,255,0.07);}
+  to{text-shadow:0 0 44px rgba(255,255,255,0.32),0 0 90px rgba(255,255,255,0.06);}
+}
+.letter-body{
+  font-size:clamp(16px,2.3vw,22px);font-family:'Crimson Text',serif;
+  line-height:2.4;color:rgba(255,255,255,0.78);
+  font-weight:400;margin-bottom:clamp(36px,6vh,54px);font-style:italic;
+}
+.letter-sig{font-size:clamp(12px,1.8vw,16px);letter-spacing:0.22em;color:rgba(255,255,255,0.36);text-transform:uppercase;}
+.letter-div{width:48px;height:1px;background:rgba(255,255,255,0.13);margin:clamp(26px,4vh,38px) auto;}
+
+.tw-cursor{
+  display:inline-block;width:1.5px;height:1em;
+  background:rgba(255,255,255,0.58);margin-left:2px;
+  vertical-align:text-bottom;animation:blink 0.85s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+#music-btn{
+  position:fixed;bottom:clamp(16px,3vh,28px);right:clamp(16px,3vw,28px);
+  z-index:500;background:transparent;
+  border:1px solid rgba(255,255,255,0.14);border-radius:50%;
+  width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:rgba(255,255,255,0.4);font-size:16px;
+  transition:all 0.3s;
+}
+#music-btn:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);}
+
+.scroll-hint{
+  position:fixed;bottom:clamp(16px,3vh,30px);left:50%;transform:translateX(-50%);
+  z-index:50;font-size:clamp(8px,1.5vw,10px);letter-spacing:0.28em;
+  color:rgba(255,255,255,0.15);text-transform:uppercase;
+  animation:sfade 2.5s ease-in-out infinite;pointer-events:none;
+}
+@keyframes sfade{0%,100%{opacity:0;}50%{opacity:1;}}
+.scroll-hint.hidden{display:none;}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div id="flower-canvas"></div>
+<audio id="bg-music" loop preload="auto"><source src="Virginia.mp3" type="audio/mpeg"></audio>
+<button id="music-btn">♪</button>
+
+<!-- ══ SCREEN 1 ══ -->
+<div class="screen" id="s1">
+  <div class="heading">आप कौन हैं&nbsp;?</div>
+  <div class="sub">who are you</div>
+  <div class="inp-wrap">
+    <input type="text" id="inp1" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off"/>
+  </div>
+  <div class="wrong-msg" id="wrong1"></div>
+</div>
+
+<!-- ══ SCREEN 2 ══ -->
+<div class="screen hidden" id="s2">
+  <div class="reveal-text" id="reveal-text"></div>
+  <div class="inp-wrap">
+    <input type="text" id="inp2" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off"/>
+  </div>
+  <div class="wrong-msg" id="wrong2"></div>
+</div>
+
+<!-- ══ SCREEN 3 — STORY ══ -->
+<div class="screen hidden" id="s3">
+  <div class="story-inner">
+
+    <!-- Prologue -->
+    <div class="chapter" id="ch0">
+      <span class="ch-label">prologue</span>
+      <h2>Some stories don't begin.<br>They find you.</h2>
+      <p>No plan. No warning. Just a quiet night, a random thread, and two strangers who had no idea something was about to shift.</p>
+      <div class="star-scatter illus">
+        <span style="--s:10px;--d:2.1s">★</span><span style="--s:17px;--d:3.5s">★</span>
+        <span style="--s:8px;--d:2.6s">★</span><span style="--s:22px;--d:4.2s">★</span>
+        <span style="--s:12px;--d:1.9s">★</span><span style="--s:14px;--d:3.1s">★</span>
+        <span style="--s:9px;--d:2.4s">★</span><span style="--s:20px;--d:4.6s">★</span>
+      </div>
+    </div>
+
+    <!-- Chapter 1 -->
+    <div class="chapter" id="ch1">
+      <span class="ch-label">chapter one</span>
+      <h2>She found him<br>on r/chat.</h2>
+      <p>She reached out first. A message from a stranger, past midnight, on a Reddit thread where most people just scroll through without stopping. <em>She stopped.</em></p>
+      <div class="illus" style="flex-direction:column;gap:16px;align-items:center;">
+        <div class="envelope"><span class="envelope-inner">✦</span></div>
+        <div class="chat-bubble">
+          <div class="chat-label">r/chat · past midnight</div>
+          hey... random, but your comment made me smile. hi.
+        </div>
+      </div>
+      <p>He replied. And that one reply became something neither of them could stop. <strong>Midnight became 1am. 1am became 3. Neither of them noticed. Neither of them minded.</strong></p>
+    </div>
+
+    <!-- Chapter 2 — walls, line-art people far apart -->
+    <div class="chapter" id="ch2">
+      <span class="ch-label">chapter two</span>
+      <h2>She had walls.<br>He had patience.</h2>
+      <p>She wasn't easy to know — and that's not a flaw, that's care. There were layers. There were 2FAs. Doors she didn't open on the first knock, or the second.</p>
+      <p><em>He knocked anyway. Gently, every time.</em></p>
+
+      <!-- Line-art: two people far apart, continuous stroke style -->
+      <div class="illus">
+        <svg viewBox="0 0 520 180" width="100%" style="max-width:520px;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="rgba(255,255,255,0.52)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <!-- GUY (left) — leaning forward, phone in hand, excited -->
+            <!-- continuous line body -->
+            <path d="M80 22 Q80 14 88 10 Q96 6 104 10 Q112 14 112 22 Q112 32 104 36 Q96 40 88 36 Q80 32 80 22Z"/>
+            <!-- smile -->
+            <path d="M88 26 Q96 32 104 26" stroke="rgba(255,255,255,0.55)"/>
+            <!-- eyes -->
+            <circle cx="90" cy="20" r="2" fill="rgba(255,255,255,0.45)" stroke="none"/>
+            <circle cx="102" cy="20" r="2" fill="rgba(255,255,255,0.45)" stroke="none"/>
+            <!-- eyebrow raised — excited -->
+            <path d="M87 15 Q90 13 93 15" stroke="rgba(255,255,255,0.38)" stroke-width="1"/>
+            <path d="M99 15 Q102 13 105 15" stroke="rgba(255,255,255,0.38)" stroke-width="1"/>
+            <!-- neck + body torso, leaning forward -->
+            <path d="M96 36 L96 48 Q90 55 85 70 Q82 90 80 115"/>
+            <!-- shoulder to arms — right arm holds phone up -->
+            <path d="M96 50 Q110 52 120 48 Q128 44 132 36"/>
+            <!-- phone in raised right hand -->
+            <rect x="126" y="24" width="12" height="20" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>
+            <rect x="128" y="27" width="8" height="12" rx="1" fill="rgba(255,255,255,0.08)" stroke="none"/>
+            <!-- left arm down relaxed -->
+            <path d="M96 50 Q82 56 75 68"/>
+            <!-- legs -->
+            <path d="M80 115 Q76 140 72 160"/>
+            <path d="M80 115 Q84 140 86 160"/>
+            <!-- hair rough -->
+            <path d="M80 20 Q78 8 88 6 Q96 4 108 8 Q116 14 112 22"/>
+            <!-- sparkle dots — excited -->
+          </g>
+          <text x="144" y="38" font-size="8" fill="rgba(255,255,255,0.28)">✦</text>
+          <text x="148" y="52" font-size="6" fill="rgba(255,255,255,0.2)">✦</text>
+
+          <!-- dashed line between them -->
+          <line x1="160" y1="90" x2="360" y2="90" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="5,9"/>
+          <text x="260" y="78" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.13)">♡</text>
+
+          <!-- GIRL (right) — upright, arms slightly crossed, reserved but beautiful -->
+          <g fill="none" stroke="rgba(255,255,255,0.52)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <!-- head -->
+            <path d="M388 22 Q388 14 396 10 Q404 6 412 10 Q420 14 420 22 Q420 32 412 36 Q404 40 396 36 Q388 32 388 22Z"/>
+            <!-- long hair flowing -->
+            <path d="M388 18 Q384 6 392 4 Q396 2 400 3" stroke="rgba(255,255,255,0.4)"/>
+            <path d="M388 28 Q382 46 384 68 Q385 80 387 95" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <path d="M420 18 Q422 8 416 4" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <path d="M420 30 Q424 50 422 72" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <!-- eyes — beautiful, almond -->
+            <path d="M394 20 Q397 17 400 19 Q397 22 394 20Z" fill="rgba(255,255,255,0.38)" stroke="none"/>
+            <path d="M404 20 Q407 17 410 19 Q407 22 404 20Z" fill="rgba(255,255,255,0.38)" stroke="none"/>
+            <!-- lashes -->
+            <path d="M394 19 Q395 16 397 17" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <path d="M410 19 Q409 16 407 17" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <!-- gentle smile -->
+            <path d="M396 28 Q402 33 408 28" stroke="rgba(255,255,255,0.5)"/>
+            <!-- neck + torso — dress / feminine silhouette -->
+            <path d="M404 36 L404 50 Q398 58 392 75 Q388 95 386 120"/>
+            <!-- dress flare -->
+            <path d="M392 75 Q382 95 378 120"/>
+            <path d="M404 58 Q414 62 420 58"/>
+            <path d="M416 58 Q422 78 424 100 Q426 120 424 140"/>
+            <!-- arms — one slightly out, one holds phone down casually -->
+            <path d="M404 52 Q388 58 380 70"/>
+            <path d="M404 52 Q418 54 424 58"/>
+            <!-- phone held casually at side -->
+            <rect x="374" y="64" width="10" height="17" rx="2" stroke="rgba(255,255,255,0.4)" stroke-width="1.1"/>
+            <!-- legs under dress -->
+            <path d="M386 120 Q383 142 382 162"/>
+            <path d="M392 120 Q393 142 394 162"/>
+            <!-- crown -->
+            <path d="M392 8 L395 2 L402 5 L409 2 L412 8" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+          </g>
+        </svg>
+      </div>
+
+      <p>She was worth every layer. He didn't rush, didn't push. He just kept showing up — night after night — and slowly, beautifully, <strong>she started letting him in.</strong></p>
+    </div>
+
+    <!-- Chapter 3 — nights -->
+    <div class="chapter" id="ch3">
+      <span class="ch-label">chapter three</span>
+      <h2>Till 3am.<br>Every night.</h2>
+      <p>This became their ritual — the late hours, the quiet world, just the two of them in the soft glow of screens. No alarms. No sense of time. <em>Just conversation that kept pulling them forward.</em></p>
+      <div class="illus" style="gap:clamp(24px,5vw,48px);">
+        <div class="clock-illus">
+          <div class="clock-center"></div>
+          <div class="clock-hand" style="width:2px;height:clamp(22px,3.5vw,29px);transform:rotate(90deg);bottom:50%;left:calc(50% - 1px);"></div>
+          <div class="clock-hand" style="width:1.5px;height:clamp(26px,4.2vw,34px);transform:rotate(0deg);bottom:50%;left:calc(50% - 0.75px);"></div>
+          <div style="position:absolute;bottom:10px;font-size:clamp(6px,1.1vw,8px);color:rgba(255,255,255,0.16);letter-spacing:0.15em;">3:00</div>
+        </div>
+        <div style="font-size:clamp(12px,1.8vw,15px);color:rgba(255,255,255,0.28);font-style:italic;font-family:'Crimson Text',serif;line-height:2.3;text-align:left;max-width:160px;">
+          the world was asleep<br>but they were<br><em style="color:rgba(255,255,255,0.5)">wide awake</em><br>for each other
+        </div>
+      </div>
+      <p>He was excited — genuinely, embarrassingly excited — every single time. A message from her felt like something. Like his whole evening had been quietly building toward it. He'd read what she wrote twice, three times. <em>Not because it was confusing. Because he liked the way she said things.</em></p>
+    </div>
+
+    <!-- Chapter 4 — voice -->
+    <div class="chapter" id="ch4">
+      <span class="ch-label">chapter four</span>
+      <h2>And then<br>her voice.</h2>
+      <p>There are voices, and then there are <em>voices</em> — the kind that don't just reach your ears, they reach something quieter underneath. She had that kind.</p>
+      <p>Warm. Unhurried. <strong>The kind of voice you want to listen to even when she's saying nothing particularly important.</strong> He got lost in it every single time. Smiling without meaning to. Minutes gone before he noticed.</p>
+      <div class="illus" style="flex-direction:column;align-items:center;gap:14px;">
+        <div class="phone-illus">
+          <div class="phone-notch"></div>
+          <div class="phone-text">calling...<br><br>◉<br><br>Vidhi</div>
+        </div>
+        <div style="font-size:clamp(11px,1.8vw,14px);color:rgba(255,255,255,0.27);font-style:italic;font-family:'Crimson Text',serif;line-height:2.1;text-align:center;">
+          her laugh, past midnight —<br><em style="color:rgba(255,255,255,0.48)">the most beautiful sound</em>
+        </div>
+      </div>
+      <p><em>He didn't know you could miss a voice before you'd fully had it.</em></p>
+    </div>
+
+    <!-- Chapter 5 — seeing her, line-art close together, radiant -->
+    <div class="chapter" id="ch5">
+      <span class="ch-label">chapter five</span>
+      <h2>And then<br>he saw her.</h2>
+      <p>After all those nights of words and voice — he saw her face. He wasn't ready for it. Nobody could be.</p>
+
+      <div class="pull-quote">
+        <p>Too perfect to be real. Her smile — the kind that rearranges the room. Her eyes — the kind that hold entire conversations on their own. Everything about her was textbook perfect, like someone designed a person to be precisely this wonderful and forgot to leave room for flaws. A princess. A real one.</p>
+      </div>
+
+      <!-- Line-art: close together now, guy amazed, girl radiant with crown -->
+      <div class="illus">
+        <svg viewBox="0 0 400 185" width="100%" style="max-width:400px;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+          <!-- GUY left, close, jaw-drop amazed expression -->
+          <g fill="none" stroke="rgba(255,255,255,0.54)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M60 28 Q60 18 70 13 Q80 8 90 13 Q100 18 100 28 Q100 40 90 44 Q80 48 70 44 Q60 40 60 28Z"/>
+            <!-- wide open amazed eyes -->
+            <circle cx="73" cy="25" r="3.5" fill="rgba(255,255,255,0.42)" stroke="none"/>
+            <circle cx="87" cy="25" r="3.5" fill="rgba(255,255,255,0.42)" stroke="none"/>
+            <!-- eye shine -->
+            <circle cx="74.5" cy="24" r="1.2" fill="rgba(255,255,255,0.75)" stroke="none"/>
+            <circle cx="88.5" cy="24" r="1.2" fill="rgba(255,255,255,0.75)" stroke="none"/>
+            <!-- open smile amazed -->
+            <path d="M70 36 Q80 46 90 36"/>
+            <path d="M72 37 Q80 43 88 37" fill="rgba(255,255,255,0.06)" stroke="none"/>
+            <!-- raised eyebrows -->
+            <path d="M69 18 Q73 15 77 18" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <path d="M83 18 Q87 15 91 18" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <!-- body leaning toward her -->
+            <path d="M80 44 L80 58 Q76 72 74 95 Q72 118 70 155"/>
+            <!-- arms — one reaching slightly toward her -->
+            <path d="M80 60 Q96 62 108 70 Q116 76 120 82"/>
+            <path d="M80 60 Q66 66 58 78"/>
+            <!-- legs -->
+            <path d="M70 155 Q66 168 64 178"/>
+            <path d="M70 155 Q74 168 76 178"/>
+          </g>
+          <!-- sparkles of awe -->
+          <text x="102" y="22" font-size="9" fill="rgba(255,255,255,0.32)">✦</text>
+          <text x="108" y="38" font-size="7" fill="rgba(255,255,255,0.22)">✦</text>
+          <text x="98" y="10" font-size="6" fill="rgba(255,255,255,0.2)">★</text>
+
+          <!-- small hearts between -->
+          <text x="190" y="72" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.22)">♡</text>
+          <text x="198" y="92" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.14)">♡</text>
+
+          <!-- GIRL right — radiant, smiling, glowing, crown -->
+          <g fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <!-- glow rings -->
+            <circle cx="280" cy="28" r="32" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <circle cx="280" cy="28" r="40" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            <!-- crown -->
+            <path d="M265 12 L268 5 L275 9 L280 4 L285 9 L292 5 L295 12" stroke="rgba(255,255,255,0.38)" stroke-width="1.2"/>
+            <!-- head -->
+            <path d="M258 28 Q258 18 268 13 Q278 8 288 13 Q298 18 298 28 Q298 40 288 44 Q278 48 268 44 Q258 40 258 28Z"/>
+            <!-- long hair -->
+            <path d="M258 22 Q254 8 262 6 Q268 4 272 5" stroke="rgba(255,255,255,0.38)" stroke-width="1"/>
+            <path d="M258 32 Q252 52 254 80 Q255 95 258 110" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+            <path d="M298 22 Q302 10 296 6" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <path d="M298 34 Q304 55 302 80" stroke="rgba(255,255,255,0.24)" stroke-width="1"/>
+            <!-- beautiful almond eyes with lashes -->
+            <path d="M266 24 Q270 20 274 23 Q270 27 266 24Z" fill="rgba(255,255,255,0.4)" stroke="none"/>
+            <path d="M278 24 Q282 20 286 23 Q282 27 278 24Z" fill="rgba(255,255,255,0.4)" stroke="none"/>
+            <circle cx="270" cy="23" r="0.9" fill="rgba(255,255,255,0.8)" stroke="none"/>
+            <circle cx="282" cy="23" r="0.9" fill="rgba(255,255,255,0.8)" stroke="none"/>
+            <!-- lashes -->
+            <path d="M266 22 Q268 18 271 19" stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
+            <path d="M286 22 Q284 18 281 19" stroke="rgba(255,255,255,0.42)" stroke-width="0.9"/>
+            <!-- warm full smile -->
+            <path d="M267 35 Q278 46 289 35"/>
+            <path d="M270 37 Q278 43 286 37" fill="rgba(255,255,255,0.07)" stroke="none"/>
+            <!-- cheeks subtle -->
+            <circle cx="263" cy="36" r="5" fill="rgba(255,255,255,0.03)" stroke="none"/>
+            <circle cx="297" cy="36" r="5" fill="rgba(255,255,255,0.03)" stroke="none"/>
+            <!-- neck + dress -->
+            <path d="M278 44 L278 58 Q272 67 266 84 Q262 104 260 130"/>
+            <path d="M266 84 Q258 104 256 130"/>
+            <path d="M278 60 Q288 64 296 60"/>
+            <path d="M294 60 Q300 80 300 108 Q300 128 298 150"/>
+            <!-- arms — one slightly toward him -->
+            <path d="M278 55 Q262 62 252 72 Q246 80 244 86"/>
+            <path d="M278 55 Q292 58 300 64"/>
+            <!-- legs -->
+            <path d="M260 130 Q257 152 256 175"/>
+            <path d="M267 130 Q268 152 268 175"/>
+          </g>
+        </svg>
+      </div>
+      <p><em>He was already, completely, in trouble.</em></p>
+    </div>
+
+    <!-- Chapter 6 — journey -->
+    <div class="chapter" id="ch6">
+      <span class="ch-label">chapter six</span>
+      <h2>Reddit to Telegram.<br>Riddles to real things.</h2>
+      <p>The story kept expanding. What started as a thread became messages, became calls, became Instagram, became hours talking about everything and nothing — <strong>riddles and playlists and 2am thoughts and the things you only say when you actually trust someone.</strong></p>
+      <p>Intimate conversations. The kind where you put down the performance and just exist. <em>And it didn't feel scary with her. It felt like relief.</em></p>
+      <p>He reduced her cortisol. Not by trying, not by doing anything grand — just by being present. Just by being the kind of person whose company makes the noise go quiet. <strong>She felt calmer, lighter, more herself.</strong> And he had never felt so connected, so alive, so genuinely glad to know another person.</p>
+    </div>
+
+    <!-- Chapter 7 — layers still to come -->
+    <div class="chapter" id="ch7">
+      <span class="ch-label">chapter seven</span>
+      <h2>Some layers<br>still to go.</h2>
+      <p>Not everything is open yet. Some of her walls are still standing — and he understands. Every wall is a story. Every lock means she's someone who knows her own worth.</p>
+      <div class="pull-quote">
+        <p>And every small piece of her she's chosen to share has been more beautiful than the last. So he's not rushing. The best things don't arrive all at once. They arrive like her — slowly, on their own terms, entirely worth the wait.</p>
+      </div>
+      <p>He hopes those layers come down soon. <em>Not because he needs them. Because she deserves to be fully, completely seen.</em> And she is — already — something extraordinary.</p>
+      <p style="color:rgba(255,255,255,0.28);font-size:clamp(12px,1.6vw,15px);font-style:italic;margin-top:32px;">keep scrolling ↓</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCREEN 4 — LETTER ══ -->
+<div class="screen hidden" id="s4">
+  <div class="letter-inner">
+    <div class="letter-name" id="letter-name"></div>
+    <div class="letter-div"></div>
+    <div class="letter-body" id="letter-body"></div>
+    <div class="letter-div"></div>
+    <div class="letter-sig">— Harsha</div>
+  </div>
+</div>
+
+<div class="scroll-hint hidden" id="scroll-hint">scroll ↓</div>
+
+<script>
+// STARS
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<200;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=(Math.random()*2.4+0.4).toFixed(1);
+    const lo=(Math.random()*0.1+0.04).toFixed(2);
+    const hi=(Math.random()*0.6+0.2).toFixed(2);
+    const d=(Math.random()*4+1.5).toFixed(1)+'s';
+    const del=(Math.random()*6).toFixed(1)+'s';
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--lo:${lo};--hi:${hi};--d:${d};animation-delay:${del};opacity:${lo}`;
+    c.appendChild(s);
+  }
+})();
+
+// FLOWERS — sunflower dominant
+const POOL=[];
+[['🌻',55],['🌹',10],['🌸',9],['🌺',7],['🪻',7],['🌼',7],['💐',5]].forEach(([e,w])=>{for(let i=0;i<w;i++)POOL.push(e);});
+let lastBurst=0;
+function spawnFlowers(x,y,n){
+  n=n||14;
+  const now=Date.now();if(now-lastBurst<80)return;lastBurst=now;
+  const cv=document.getElementById('flower-canvas');
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');p.className='petal';
+      const e=POOL[Math.floor(Math.random()*POOL.length)];
+      const sz=(Math.random()*18+12)+'px';
+      const fd=(Math.random()*2.8+1.9)+'s';
+      const rot=(Math.random()*720-360)+'deg';
+      const rot1=(Math.random()*360)+'deg';
+      const sway=(Math.random()*90-45)+'px';
+      const lx=Math.max(0,Math.min(window.innerWidth-32,(x||Math.random()*window.innerWidth)+(Math.random()*70-35)));
+      p.style.cssText=`--sz:${sz};--fd:${fd};--rot:${rot};--rot1:${rot1};--sway:${sway};left:${lx}px`;
+      p.textContent=e;cv.appendChild(p);
+      setTimeout(()=>p.remove(),(parseFloat(fd)*1000)+300);
+    },i*55);
+  }
+}
+document.addEventListener('click',e=>spawnFlowers(e.clientX,e.clientY,16));
+document.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0];
+  spawnFlowers(t.clientX,t.clientY,16);
+},{passive:true});
+
+// MUSIC — starts on first interaction, loops forever
+const music=document.getElementById('bg-music');
+const mBtn=document.getElementById('music-btn');
+let musicStarted=false,musicPaused=false;
+function startMusic(){
+  if(musicStarted)return;
+  musicStarted=true;
+  music.volume=0;
+  music.play().then(()=>{
+    mBtn.textContent='♫';
+    let v=0;
+    const fi=setInterval(()=>{v=Math.min(0.44,v+0.008);music.volume=v;if(v>=0.44)clearInterval(fi);},150);
+  }).catch(()=>{});
+}
+['click','touchstart','keydown'].forEach(ev=>{
+  document.addEventListener(ev,()=>startMusic(),{once:true,passive:true});
+});
+mBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!musicStarted){startMusic();return;}
+  if(musicPaused){music.play();musicPaused=false;mBtn.textContent='♫';}
+  else{music.pause();musicPaused=true;mBtn.textContent='♪';}
+});
+
+// TYPEWRITER
+function typewrite(el,text,speed,cb){
+  el.innerHTML='';
+  const cur=document.createElement('span');cur.className='tw-cursor';el.appendChild(cur);
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<text.length){
+      const ch=text[i];
+      if(ch==='\n')el.insertBefore(document.createElement('br'),cur);
+      else el.insertBefore(document.createTextNode(ch),cur);
+      i++;
+    }else{clearInterval(iv);setTimeout(()=>{cur.remove();if(cb)cb();},350);}
+  },speed||38);
+}
+
+// SCREENS
+function showScreen(id){
+  ['s1','s2','s3','s4'].forEach(sid=>{
+    document.getElementById(sid).classList[sid===id?'remove':'add']('hidden');
+  });
+}
+
+// SCREEN 1
+const inp1=document.getElementById('inp1');
+const wrong1=document.getElementById('wrong1');
+setTimeout(()=>inp1.focus(),400);
+function checkS1(){
+  const v=inp1.value.trim().toLowerCase();
+  if(v==='tara'){
+    wrong1.textContent='';startMusic();showScreen('s2');setTimeout(startScreen2,300);
+  }else{
+    const m=['hmm... try again.','nope. who are you, really?','that\'s not it... 🤔','nice try. think harder.'];
+    wrong1.textContent=m[Math.floor(Math.random()*m.length)];
+    inp1.classList.add('shake');setTimeout(()=>inp1.classList.remove('shake'),500);inp1.value='';
+  }
+}
+inp1.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkS1();}});
+
+// SCREEN 2
+const s2msg=`Common, let's unveil the layers shall we...\n\njust bless me with that smile of yours\nand throw your real name at me, Bellissima`;
+function startScreen2(){
+  const el=document.getElementById('reveal-text');
+  setTimeout(()=>typewrite(el,s2msg,42,()=>{setTimeout(()=>document.getElementById('inp2').focus(),200);}),200);
+}
+const inp2=document.getElementById('inp2');
+const wrong2=document.getElementById('wrong2');
+function checkS2(){
+  const v=inp2.value.trim().toLowerCase().replace(/\s+/g,' ');
+  if(v==='vidhi vidhi vidhi'){
+    wrong2.textContent='';showScreen('s3');initStory();
+  }else if(v.includes('vidhi')&&(v.split('vidhi').length-1)<3){
+    wrong2.textContent='three times. say it three times.';
+    inp2.classList.add('shake');setTimeout(()=>inp2.classList.remove('shake'),500);inp2.value='';
+  }else{
+    const m=['that\'s not quite it, Bellissima.','come on now... you know the word.','say it like you mean it.'];
+    wrong2.textContent=m[Math.floor(Math.random()*m.length)];
+    inp2.classList.add('shake');setTimeout(()=>inp2.classList.remove('shake'),500);inp2.value='';
+  }
+}
+inp2.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkS2();}});
+
+// STORY SCROLL
+function initStory(){
+  const s3=document.getElementById('s3');
+  const chapters=s3.querySelectorAll('.chapter');
+  const hint=document.getElementById('scroll-hint');
+  hint.classList.remove('hidden');
+  setTimeout(()=>chapters[0].classList.add('visible'),500);
+  function checkVis(){
+    chapters.forEach(ch=>{
+      if(ch.getBoundingClientRect().top<window.innerHeight*0.85)ch.classList.add('visible');
+    });
+    const total=s3.scrollHeight-s3.clientHeight;
+    if(total>0&&s3.scrollTop/total>0.97){
+      hint.classList.add('hidden');
+      setTimeout(()=>{showScreen('s4');startLetter();},700);
+    }
+  }
+  s3.addEventListener('scroll',checkVis,{passive:true});
+  window.addEventListener('resize',checkVis,{passive:true});
+}
+
+// LETTER
+function startLetter(){
+  const nameEl=document.getElementById('letter-name');
+  const bodyEl=document.getElementById('letter-body');
+  setTimeout(()=>{
+    typewrite(nameEl,'Vidhi',82,()=>{
+      setTimeout(()=>{
+        const letter=`To many more nights of low cortisol\nand many more goals —\n\ncheers, Bellissima.\n\nYou are seen. You are radiant.\nYou matter more than you let yourself believe.\n\nI'm glad you found me.`;
+        let i=0;
+        const cur=document.createElement('span');cur.className='tw-cursor';bodyEl.appendChild(cur);
+        const iv=setInterval(()=>{
+          if(i<letter.length){
+            const ch=letter[i];
+            if(ch==='\n')bodyEl.insertBefore(document.createElement('br'),cur);
+            else bodyEl.insertBefore(document.createTextNode(ch),cur);
+            i++;
+          }else{
+            clearInterval(iv);cur.remove();
+            for(let k=0;k<12;k++)setTimeout(()=>spawnFlowers(Math.random()*window.innerWidth,0,24),k*200);
+          }
+        },46);
+      },800);
+    });
+  },500);
+}
+</script>
+</body>
+</html>
